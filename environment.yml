@@ -1,0 +1,7 @@
+name: lunchmoney-utils
+channels:
+  - conda-forge
+dependencies:
+  - lunchable
+  - pandas
+  - pyarrow
