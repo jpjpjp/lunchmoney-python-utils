@@ -32,9 +32,6 @@ def main():
     # Create the proposed category groups
     create_proposed_category_groups(groups)
 
-    # Assign the existing categories to the appropriate group
-    # assign_category_groups(categories, groups)
-
 
 def read_json_file(file_path):
     """Reads a JSON file and returns its content."""
