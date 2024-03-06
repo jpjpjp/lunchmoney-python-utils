@@ -23,6 +23,7 @@ sys.path.append("..")
 private_lunch = None
 categories = None
 
+
 def init_lunchable(token):
     global private_lunch
     if private_lunch is None:
@@ -88,24 +89,3 @@ def read_or_fetch_lm_transactions(start_date, end_date, csv_file_base, lunch=Non
         df.to_csv(csv_file, index=False)
 
     return df
-
-
-def get_categories(lunch=None):
-    """ If it hasn't been done yet, get's the categories from lunchmoney
-    and stores them in the global variable categories
-    """
-    global categories
-    if categories is None:
-        if lunch is None:
-            lunch = init_lunchable(lmc.LUNCHMONEY_API_TOKEN)
-        categories = lunch.get_categories()
-    return categories
-
-
-def get_category_id_by_name(name, lunch=None):
-    """ Returns the category id for the category with the specified name
-    """
-    categories = get_categories(lunch)
-    category = next((category for category in categories if category.name == name), None)
-    return category.id if category else None
-

@@ -50,3 +50,20 @@ LOOKAHEAD_DAYS = 7
 # An optional csv file that maps account names as they appear in LunchMoney to how
 # they appear in the exported Mint transactions
 ACCOUNT_NAME_MAP_FILE = "account_name_map.csv"
+
+###################################
+# Variables used by prep_categories.py
+###################################
+# Name of CSV that defines Spending Groups in the config directory
+SPENDING_GROUP_DEFINITIONS = "default-mint-spending-groups.csv"
+
+###################################
+# Filenames written by prep_categories.py and read by create_category_groups.py
+###################################
+# Name of generated file with a list of objects that define the set
+# of new category groups to be created.
+CATEGORY_GROUP_DEFINITIONS = "category_group_objects.json"
+
+# Name of output file with a list of objects that define the set
+# of new category groups to be created
+CATEGORY_ASSIGNEMENTS = "category_objects.json"
