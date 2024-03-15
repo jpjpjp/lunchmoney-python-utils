@@ -14,7 +14,6 @@ from config.lunchmoney_config import (
     INPUT_FILES,
     OUTPUT_FILES,
     LOOKBACK_TRANSACTION_DAYS,
-    LM_FETCHED_TRANSACTIONS_CACHE,
 )
 
 
@@ -160,16 +159,6 @@ def get_existing_transactions(input_path, input_file, date_format):
     return mint_df
 
 
-def validate_splits(df):
-    parents = df[df["has_children"]]
-    for parent_id in parents["id"]:
-        if parent_id not in df["parent_id"].values:
-            print(f"Parent id {parent_id} does not exist in the dataframe.")
-            sys.exit(1)
-    print(f"Removing {len(parents)} transactions that were split")
-    return df[~df["has_children"]]
-
-
 def get_new_lunchmoney_transactions(existing_df, lookback_days):
     """
     Fetches new transactions from LunchMoney for the specified date range.
@@ -184,19 +173,12 @@ def get_new_lunchmoney_transactions(existing_df, lookback_days):
     # Fetch transactions from LunchMoney for the specified date range
     # new_transactions_df = lunchmoney_transactions_to_df(start_date, end_date)
     new_transactions_df = read_or_fetch_lm_transactions(
-        start_date, end_date, LM_FETCHED_TRANSACTIONS_CACHE
+        start_date, end_date,
+        remove_pending=True, remove_split_parents=True
     )
     print(f"Fetched {len(new_transactions_df)} new transactions from LunchMoney.")
 
-    # remove any pending transactions
-    not_pending_df = new_transactions_df[~new_transactions_df.is_pending]
-    num_pending = len(new_transactions_df) - len(not_pending_df)
-    print(f"Removing {num_pending} new transactions that are pending.")
-
-    # remove any parents of split transactions
-    not_pending_df = validate_splits(not_pending_df)
-
-    return not_pending_df
+    return new_transactions_df
 
 
 def exit_if_transactions_not_ready(df):

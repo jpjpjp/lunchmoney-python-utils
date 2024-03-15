@@ -72,7 +72,7 @@ def main():
             "action" - "Duplicate" or blank
             "related_id" - id of the lunchmoney transaction in the plaid CSV output
     """
-    plaid_df = prepare_plaid_dataset(START_DATE, END_DATE, lmc.LM_CSV_FILE_BASE)
+    plaid_df = prepare_plaid_dataset(START_DATE, END_DATE)
     mint_df = prepare_mint_dataset(os.path.join(lmc.INPUT_FILES, lmc.MINT_CSV_FILE))
 
     # Read in the mapping of LM/Mint Account Name synonyms
@@ -139,7 +139,7 @@ def sort_by_account_date(df, acct_name, date):
     return sorted_df
 
 
-def prepare_plaid_dataset(start_date, end_date, lm_csv_file_base):
+def prepare_plaid_dataset(start_date, end_date):
     """This function reads or fetchs a set of lunchmoney transactions in the
     specified date range and transforms it into
     a dataframe, reducin low value columns while adding
@@ -152,7 +152,7 @@ def prepare_plaid_dataset(start_date, end_date, lm_csv_file_base):
     A side effect of this function is to write a csv file 'ignored_transactions.csv'
     which contains any transactions with a "source" value other than "plaid"
     """
-    df = trans.read_or_fetch_lm_transactions(start_date, end_date, lm_csv_file_base)
+    df = trans.read_or_fetch_lm_transactions(start_date, end_date)
     if "action" not in df.columns and "related_id" not in df.columns:
         # This a previously unprocessed data pull from LunchMoney,
         # Thin out the columns, add our analysis columns, and sort
