@@ -10,6 +10,17 @@
 LUNCHMONEY_API_TOKEN = "<YOUR_TOKEN_HERE>"
 
 ###################################
+# Cache File for read_or_fetch_lm_transactions in lib/transactions
+###################################
+# The name of the file to write lunchmoney transactions to that are fetched by the API
+# If this file exists, the data here will be used instead of making an API call
+# If not the API will append  _START-DATE_END-DATE.csv and write a cache for future requests
+# Delete this file, to force an API call, or call delete_transactions_cache()
+PATH_TO_TRANSACTIONS_CACHE = "/tmp/lm_transactions"
+
+###################################
+
+###################################
 # Default location for input and output files
 ###################################
 INPUT_FILES = "./input"
@@ -19,7 +30,12 @@ OUTPUT_FILES = "./output"
 # Variables used by get_new_transaction.py
 ###################################
 LOOKBACK_TRANSACTION_DAYS = 7
-LM_FETCHED_TRANSACTIONS_CACHE = "lm_transactions"
+###################################
+# Variables used by process_duplicates.py
+###################################
+# Number of days to look for duplicate transactions
+LOOKBACK_LM_DUP_DAYS = 7
+
 
 ###################################
 # Variables used by compare_plaid_with_mint.py
@@ -30,11 +46,11 @@ END_DATE_STR = "12/31/2023"
 # The name of the csv file with your mint transactions, in the INPUT_FILES directory
 MINT_CSV_FILE = "transactions.csv"
 # The format of the date strings in your Mint data
+# This is the format of the dates as exported by Mint and LunchMoney
 MINT_DATE_FORMAT = "%Y-%m-%d"
-# The name of the file to write lunchmoney transactions to that are fetched by the API
-# If this file exists, the data here will be used instead of making an API call
-# Delete this file, in the INPUT_FILES directory, to force an API call
-LM_CSV_FILE_BASE = "plaid_analyzed_transactions"
+# This is the format of dates once a CSV is opened and saved in Excel
+# MINT_DATE_FORMAT = "%m/%d/%y"
+
 # The date of plaid transactions in Lunchmoney is the transaction date
 # Mint dates are typically the transaction settle date so can be some days later
 # For at least one of my accounts I've seen the Mint dates be earlier than Plaid too.
