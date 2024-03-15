@@ -36,6 +36,32 @@ Before running the scripts for the first time, you'll need to copy the template 
 
 3.  The remaining configuration elements are script specific and outlined in the script documentation
 
+## process_duplicates.py
+
+I still occasionally find duplicate lunchmoney transactions, I'm not sure why.  This may be because of the way I originally imported my Mint transaction data, or an ongoing issue with Plaid, but it has happened enough that I thought it would be handy to write a small script to identify potential duplicates for inspection and then, based on the results of that inspection tag them as non-duplicates or mark them for deletion.
+
+### Script Configuration
+The script relies on the following settings in the [./config/lunchmoney-config.py](./config/lunchmoney_config.py), which you must set up the first time you run any of the scripts by following [these instructions](#configure-your-scripts).   
+
+  - START_DATE_STR  - Earliest date to fetch transactions, in MM/DD/YYYY format
+  - END_DATE_STR - Latest date to fetch transactions from, in MM/DD/YYYY format
+  - LOOKBACK_LM_DUP_DAYS - The number of days to lookback for potential duplicates - default is 7
+  - PATH_TO_TRANSACTIONS_CACHE - The location of a cache file for transactions fetched via the API  This is useful if you run this script multiple times.  After the first API request the data is written to `{PATH_TO_TRANSACTIONS_CACHE}-{START_DATE_STR}-${END_DATE_STR}.csv`.  Future requests for transactions from the same data range will use the cached copy if the file exists.
+
+### Running the script
+
+After ensuring that your environment is set up as [described here](#checklist-to-setup-the-environment-to-run-the-scripts), type the following in your terminal:
+  ```bash
+  python process_duplicates.py
+  ```
+This script will fetch all the all the transactions in the specified data range, ignoring pending transactions and any parents of split transactions.   It will sort the transactions by `account_display_name` and then attempt to identify any transactions with the same account, amount, and a date within a LOOKBACK_LM_DUP_DAYS window.
+
+When it finds multiple transactions that meet this criteria they are presented to the user, who is asked to interactively identify if one is a duplicate or if all the transactions are valid.   If a duplciate is identified it is **marked for deletion**.  If the transactions are verfied as non duplicate, they are updated with the "Not-Duplicate" tag to prevent triggering this process in the future.   The user also has an opportunity to update the Payee or Notes field with more details explaining the difference between the two.
+
+**Note on Deletion** Currently, the Lunchmoney API does not provide an interface for deleting transactions, so transactions marked for deletion are tagged with tag named: "Duplicate".   After the script completes it will write any transactions tagged as a duplicate to the ouptut directory.
+
+After the script runs, the user can filter for transactions with the "Duplicate" tag and delete them.
+
 ## prep_categories.py and create_category_groups.py
 
 These two scripts "team up" to create a set of category groups in lunchmoney based on a csv file that defines the desired category groups and their subcategories.  It may be especially useful to former Mint users who have imported their transactions from Mint.  
@@ -95,7 +121,7 @@ Before running the script set the following variables in config/lunchmoney_confi
   - END_DATE_STR - Latest date to fetch transactions from, in MM/DD/YYYY format
   - MINT_CSV_FILE - Name of the csv file with your mint transactions, in the `input` directory
   - MINT_DATE_FORMAT - The default of "%Y-%m-%d" is probably OK
-  - LM_CSV_FILE_BASE - The base name of a file to cache transactions fetched via API.  This is useful if you run this script multiple times.  After the first API request the data is written to `./input/${LM_CSV_FILE_BASE}-{START_DATE_STR}-${END_DATE_STR}.csv`.  Future requests for transactions from the same data range will use the cached copy if the file exists.
+  - PATH_TO_TRANSACTIONS_CACHE - The location of a cache file for transactions fetched via the API  This is useful if you run this script multiple times.  After the first API request the data is written to `{PATH_TO_TRANSACTIONS_CACHE}-{START_DATE_STR}-${END_DATE_STR}.csv`.  Future requests for transactions from the same data range will use the cached copy if the file exists.
   - LOOKBACK_DAYS - Number of days earlier than the transaction date in the Lunchmoney/Plaid transaction to check for duplicates in the Mint Data
   - LOOKAHEAD_DAYS - Number of days later than the transaction date in the Lunchmoney/Plaid transaction to check for duplicates in the Mint Data
 
