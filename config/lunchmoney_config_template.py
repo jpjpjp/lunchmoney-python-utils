@@ -7,7 +7,16 @@
 # API Key used by all utilities
 ###################################
 # Lunchmoney API Token available here: https://my.lunchmoney.app/developers
-LUNCHMONEY_API_TOKEN = "<YOUR_TOKEN_HERE>"
+LUNCHMONEY_API_TOKEN = "<YOUR_TOKEN_HERE>"###################################
+# Cache File for read_or_fetch_lm_transactions in lib/transactions
+###################################
+# The name of the file to write lunchmoney transactions to that are fetched by the API
+# If this file exists, the data here will be used instead of making an API call
+# If not the API will append  _START-DATE_END-DATE.csv and write a cache for future requests
+# Delete this file, to force an API call, or call delete_transactions_cache()
+PATH_TO_TRANSACTIONS_CACHE = "/tmp/lm_transactions"
+
+###################################
 
 ###################################
 # Cache File for read_or_fetch_lm_transactions in lib/transactions
