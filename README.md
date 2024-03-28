@@ -38,15 +38,18 @@ Before running the scripts for the first time, you'll need to copy the template 
 
 ## process_duplicates.py
 
-I still occasionally find duplicate lunchmoney transactions, I'm not sure why.  This may be because of the way I originally imported my Mint transaction data, or an ongoing issue with Plaid, but it has happened enough that I thought it would be handy to write a small script to identify potential duplicates for inspection and then, based on the results of that inspection tag them as non-duplicates or mark them for deletion.
+When I first started using Lunch Money, I imported about 10 years worth of transactions from Mint.  Then I told Lunch Money about my active bank accounts and had it fetch transactions.  Unforutnatly, I didn't tell Lunch Money to ignore transactions older than the ones I imported.  This led to a lot of duplciates (and actually a few new transactions that Mint somehow never picked up).  This script is useful for identifying those duplicates so that they can all be easily deleted in one bulk transactions.
+
+Even after doing this initial setup, I still occasionally find duplicate lunchmoney transactions, I'm not sure why.  This may be because of the way I originally imported my Mint transaction data, or an ongoing issue with Plaid, but it has happened enough that I thought it would be handy to write a small script to identify potential duplicates for inspection and then, based on the results of that inspection tag them as non-duplicates or mark them for deletion.
 
 ### Script Configuration
 The script relies on the following settings in the [./config/lunchmoney-config.py](./config/lunchmoney_config.py), which you must set up the first time you run any of the scripts by following [these instructions](#configure-your-scripts).   
 
   - START_DATE_STR  - Earliest date to fetch transactions, in MM/DD/YYYY format
   - END_DATE_STR - Latest date to fetch transactions from, in MM/DD/YYYY format
-  - LOOKBACK_LM_DUP_DAYS - The number of days to lookback for potential duplicates - default is 7
-  - PATH_TO_TRANSACTIONS_CACHE - The location of a cache file for transactions fetched via the API  This is useful if you run this script multiple times.  After the first API request the data is written to `{PATH_TO_TRANSACTIONS_CACHE}-{START_DATE_STR}-${END_DATE_STR}.csv`.  Future requests for transactions from the same data range will use the cached copy if the file exists.
+  - LOOKBACK_LM_DUP_DAYS - The number of days to lookback for potential duplicates. This is necessary if a transaction was somehow categorized when it was pending and when it settled the date was actually later.  It's also useful when comparing Lunch Money/Plaid transactions with imported data since the transaction date can often be different - default is 7
+  - CACHE DIR and LM_FETCHED_TRANSACTIONS_CACHE - The directory and name of a cache file for transactions fetched via the API. This is useful if you run this script multiple times.  After the first API request the data is written to `{CACH_DIR}/{LM_FETCHED_TRANSACTIONS_CACHE}-{START_DATE_STR}-${END_DATE_STR}.csv`.  Future requests for transactions from the same data range will use the cached copy if the file exists.   Delete this file to force a refresh pull from the API
+  - ASK_UPDATE_NON_DUPS - When this parameter is set to True, and the user indentifies a potential set of duplicates as non duplicates, it will ask the user if they want to update the Payee or Notes field to make it clearer what the distinction is between the transactions.  This is useful when the script is run for "periodic hygiene" on your LunchMoney transactions, and most potential duplicates are actually legitimate.  This level of interactivity can be cumbersome however if you are running this script after accidentally importing tons of plaid transactions that duplicate what you already imported in Mint.  In this case it is reccomended to set this configuration paramter to False to move more quickly through a large set of duplicate transacations.
 
 ### Running the script
 
@@ -103,75 +106,6 @@ As each step takes place, details are written to the terminal.  Note that a one 
 
 After running this script you can view your updated categories in the [LunchMoney Gui](https://my.lunchmoney.app/categories) to confirm that the changes are as expected.
 
-## compare_plaid_with_mint.py
-
-This script compares a set of transactions in LunchMoney that were imported directly from their financial institution via Plaid, with a CSV file of Mint transactions that were previously imported into Lunchmoney.
-
-### Background
-
-When I first started using LunchMoney, I began by importing an initial set of transactions from Mint.  I later set up automatic connections to my accounts in LunchMoney via Plaid. When these connections are first set up there is an option to set how far back in time to pull transactions. I've seen that some users on the forum forget to do this.  In my case I attempted to do this by rolling back the month and day to the last date of an imported Mint transaction, but did not notice that the default year in this dialog was one year ago.
-
-This tool addresses the challenge of identifying duplicate transactions and discrepancies between the transactions pulled from Plaid and those exported from Mint.
-
-### Script Configuration
-
-Before running the script set the following variables in config/lunchmoney_config.py
-
-  - START_DATE_STR  - Earliest date to fetch transactions, in MM/DD/YYYY format
-  - END_DATE_STR - Latest date to fetch transactions from, in MM/DD/YYYY format
-  - MINT_CSV_FILE - Name of the csv file with your mint transactions, in the `input` directory
-  - MINT_DATE_FORMAT - The default of "%Y-%m-%d" is probably OK
-  - PATH_TO_TRANSACTIONS_CACHE - The location of a cache file for transactions fetched via the API  This is useful if you run this script multiple times.  After the first API request the data is written to `{PATH_TO_TRANSACTIONS_CACHE}-{START_DATE_STR}-${END_DATE_STR}.csv`.  Future requests for transactions from the same data range will use the cached copy if the file exists.
-  - LOOKBACK_DAYS - Number of days earlier than the transaction date in the Lunchmoney/Plaid transaction to check for duplicates in the Mint Data
-  - LOOKAHEAD_DAYS - Number of days later than the transaction date in the Lunchmoney/Plaid transaction to check for duplicates in the Mint Data
-
-Note that the LOOKBACK and LOOKAHEAD_DAYS are necessary because while LunchMoney tends to use the date that the transaction occured, most Mint connectors used the settled date (usually a bit later) as the transaction date.   You can experiment with these values.   The larger the window, the more likely it is that you will get multiple duplicate candidates.  When this occurs the script will interactively ask you to select the correct one.   When the window is smaller you are more likely to miss some duplicates which will require manual investigation.
-
-There is a second optional configuation file called `account_name_map.csv`.  This file allows you to map the "account_display_name" that LunchMoney uses for the Plaid transactions with the "Account Name"s that were in your Mint Import data.   To set up this mapping:
-  1)  copy [`/config/account_name_map-template.py`](./config/account_name_map-template.py) to `config/account_name_template.py`.   
-  2) Edit the file with your specific account names.  
-      - The first "row" is the set of names of the accounts used by your Plaid transactions.  You can find these on the [Accounts - Lunch Money](https://my.lunchmoney.app/accounts) page in the `Automatic bank syncing via Plaid` section.  You only need to include the ones where the name is different for Mint
-      - The second row is the set of account names used in your Mint Transactions.  If you did not modify these during the original import you can find these on the [Accounts - Lunch Money](https://my.lunchmoney.app/accounts) in the `Manually-managed accounts` section, however if you changed any of these via the Import Wizard, you will need to use the accounts in your Mint transactions CSV file.   Put each Account Name in the "column" that matches the LunchMoney account name that you put in row 1.
-      - If multiple imports took place, or if your Mint data has multiple Account Names that map to a single Plaid account, additional rows can be added to add additional synonyms
-      
-      Each "column" in the CSV file is a set of synonyms that map Mint Account Names to the Plaid Account Name at the top of the column.
-
-### Running the script
-
-Once the configuration is set you can execute the script by typing the following in a terminal window:
-```sh
-python compare_plaid_with_mint.py
-```
-
-The script will fetch/read in the two sets of transactions and attempt to match duplicates between the two input sources.  A Plaid transaction is considered to duplicate a Mint transaction if the "Amount" and "Account" are the same, and the "Date" for the Mint transaction falls within the specified window of the date for the Plaid transactions.
-
-If multiple possible transactions match the criteria, the user is interactively prompted to select the right transaction to map as a duplicate.
-
-When the script completes it's run, it writes two new files to the `output` directory:
-  - `plaid_analyzed_transactions.csv` has the details of all the plaid transactions that were fetched along with two additional columns: "action" and "related_id".   The "action" column will be populated with the word "Duplicate" or "Investigate".   If it is "Duplicate", the "related_id" column will have the index of the transaction in the mint output file that matches the Plaid transaction.
-  - `mint_analyzed_transactions.csv` is a list of all the Mint transactions with an index column and the same two additional columns.   If a duplicate was found the "action" column will include the word "Match" and the "related_id" will the be id field of the duplicate transaction in the plaid file.
-
-Both files will have the transactions sorted first by Account Name, and then by Date which makes any manual analyis easier.
-
-### Analyzing the Output
-
-After running this script I typically, open both files side by side and start by randomly selecting a few transactions with an "action" of "Duplicate" in the plaid output file and then look for the matching index in the mint output file to convince myself that the matching is legitamite.  I also do the reverse, by looking at some random transactions with an "action" of "Match" in the mint file and look for the "requested_id" in the plaid file.
-
-I then focus on looking at each of the transactions listed as "Investigate" to see why a match wasn't found.  In my experience this can happen for the following reasons:
-- The same account is named differently between LunchMoney and Mint.  In this case, edit the `config/account_name_template.csv file and run again.  
-  - Pro Tip: you can copy the `output/plaid_analyzed_transactions.csv` to `./input/${LM_CSV_FILE_BASE}-{START_DATE_STR}-${END_DATE_STR}.csv` and `output/mint_analyze_transactions.csv` to `input/${MINT_CSV_FILE}` to use this output as input for the subsequent run.  This will save you the work of re-doing any manual disambiguation for duplicates that were previously identified.
-- The transaction was split in Mint.   In this case I can find two or more transactions for the same account on around the same day that add up to the total amount.  After finding this I'll generally manually set the "action" cell for the plaid transaction to "Duplicate"
-- The Mint transaction has a date that is set outside of the [LOOKAHEAD/LOOKBACK]_DAYS window.   These can be manually identified or you can experiment with broadening this window and rerunning the script (see Pro Tip above!)
-- There may be Plaid transactions pulled for accounts or dates that simply weren't represented in the Mint data.   I found several example of this in my data, even though I was sure that I had the accounts set up in Mint and Mint covered the dates.  My only conclusion was that Mint connectivity got flaky in 2023 and transactions were simply missed.   When I identified these types of Transactions, I set the "action" column to "Keep" in the plaid output file.
-
-### Deleting the duplicates
-
-My original plan was to write a tool that could ingest the `plaid_analyzed_transacetions.csv` file and use the API to delete all the transactions with an "action" of "Duplicate", however I realized that there is not yet an API that allows for the deletion of a single transaction.
-
-What I ended up doing was realizing that it was a big mess.  I manaully pulled the few transactions that were in the plaid data that was not in my original Mint import, into my Mint file, deleted all my transactions, and started from scratch with a new import file that included the missing transactions from Plaid.
-
-You could attempt to manually delete the duplicate transactions, or it should be possible to write a script that could use [Create Transaction Group](https://lunchmoney.dev/#create-transaction-group) and [Delete Transaction Group](https://lunchmoney.dev/#delete-transaction-group) APIs.  If anyone is interested, I'd be happy to create an initial version of this script for you to test on your data.  Just open a pull request or direct message `jpjpjp` on the [LunchMoney Discord Server](https://discord.com/channels/842337014556262411/1134593926297309204)
-
 ## Other scripts
 
 This repo includes the following other scripts.   In an effort to get some interested parties access to the `compare_plaid_with_mint.py` script, I have started the repo without documenting them yet.
@@ -179,3 +113,4 @@ This repo includes the following other scripts.   In an effort to get some inter
   - [fix_negative_credits.py](./fix_negative_credits.py) - I found a few credit transactions that I imported from Mint which showed up as expenses in LunchMoney.  I had hoped to use the [Update Transaction API](https://lunchmoney.dev/#update-transaction) to fix these, but neither setting the `is_income` field or using the absolute value of the `amount` field got the intended result, so I ended up fixing them all manually in the GUI
   - [get_new_transactions.py](./get_new_transactions.py) is a script for adding the latest transactions to lunchmoney to a locally stored CSV of transactions in Mint format.
   - [list_unused_tags](./list_unused_tags.py) iterates through all the tags and lists the ones with zero transactions associated with them.  In my several attempts at Mint imports I ended up with multiple copies of tags, especially when the Mint transactions included more than one label.   For now, I simply use the output of this script to manually delete the tags, but if the API expands to include a `DELETE /tags` endpoint this could be run periodically as an automated cleanup job.
+  - [compare_plaid_with_mint](./compare_plaid_with_mint.py) is my first attempt to come up with a tool to help deal with duplicates when you first import Mint data into Lunch Money and then add the same accounts to Lunch Money, accidentally fetching transactions that are earlier than the transactions that you imported.  I now thing that the [process_duplicates.py](#process-duplicates.py) script is the right way to deal with this issue.

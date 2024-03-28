@@ -76,8 +76,9 @@ def main():
     mint_df = prepare_mint_dataset(os.path.join(lmc.INPUT_FILES, lmc.MINT_CSV_FILE))
 
     # Read in the mapping of LM/Mint Account Name synonyms
-    if os.path.isfile(lmc.ACCOUNT_NAME_MAP_FILE):
-        acct_name_df = pd.read_csv(lmc.ACCOUNT_NAME_MAP_FILE)
+    act_name_map_file = os.path.join(lmc.CONFIG_FILES, lmc.ACCOUNT_NAME_MAP_FILE)
+    if os.path.isfile(act_name_map_file):
+        acct_name_df = pd.read_csv(act_name_map_file)
     else:
         acct_name_df = None
 
