@@ -7,47 +7,66 @@
 # API Key used by all utilities
 ###################################
 # Lunchmoney API Token available here: https://my.lunchmoney.app/developers
-LUNCHMONEY_API_TOKEN = "<YOUR_TOKEN_HERE>"###################################
-# Cache File for read_or_fetch_lm_transactions in lib/transactions
-###################################
-# The name of the file to write lunchmoney transactions to that are fetched by the API
-# If this file exists, the data here will be used instead of making an API call
-# If not the API will append  _START-DATE_END-DATE.csv and write a cache for future requests
-# Delete this file, to force an API call, or call delete_transactions_cache()
-PATH_TO_TRANSACTIONS_CACHE = "/tmp/lm_transactions"
-
-###################################
+LUNCHMONEY_API_TOKEN = "<YOUR_TOKEN_HERE>"
 
 ###################################
 # Cache File for read_or_fetch_lm_transactions in lib/transactions
 ###################################
-# The name of the file to write lunchmoney transactions to that are fetched by the API
-# If this file exists, the data here will be used instead of making an API call
-# If not the API will append  _START-DATE_END-DATE.csv and write a cache for future requests
-# Delete this file, to force an API call, or call delete_transactions_cache()
-PATH_TO_TRANSACTIONS_CACHE = "/tmp/lm_transactions"
+# Directory to use for temporary and local cache files
+CACHE_DIR = "/tmp"
+# Name for local cache of fetched transactions, handy for interative development
+LM_FETCHED_TRANSACTIONS_CACHE = "lm_transactions"
 
-###################################
 
 ###################################
 # Default location for input and output files
 ###################################
 INPUT_FILES = "./input"
 OUTPUT_FILES = "./output"
+CONFIG_FILES = "./config"
 
 ###################################
-# Variables used by get_new_transaction.py
+# Variables used by get_new_transaction.py and update_local_transactions.py
 ###################################
 LOOKBACK_TRANSACTION_DAYS = 7
+
+###################################
+# Date range of transactions to fetch
+# Used by process_duplicates and compare_plaid_with_mint.py
+###################################
+# Start and End Dates to fetch transactions - in MM/DD/YYYY format
+START_DATE_STR = "1/1/2024"
+END_DATE_STR = "4/25/2024"
+
+#####################################
+# Variables used by update_local_transaction_data.py
+#####################################
+PATH_TO_LOCAL_TRANSACTIONS = "lm-transaction-backup.csv"
+# Validate that local data has required fields
+DATE = "date"
+PAYEE = "payee"
+AMOUNT = "amount"
+CATEGORY = "category_name"
+ACCOUNT = "account_display_name"
+COLS_TO_VALIDATE = [DATE, PAYEE, AMOUNT, CATEGORY, ACCOUNT]
+
 ###################################
 # Variables used by process_duplicates.py
 ###################################
 # Number of days to look for duplicate transactions
 LOOKBACK_LM_DUP_DAYS = 7
+# If two or more transactions look like duplicates but aren't it could be helpful
+# to provide more info in the Payee or Notes field to help disambituate
+# If this parameter is set to anything, the interactive process of disambiguation
+# will provide the ability to update these fields when tagging a transaction as non-dup
+# Comment out or set to False to avoid this behavior which may be desirable
+# when processing many transactions which are in fact duplciates
+# Set to True when periodically running this script..
+ASK_UPDATE_NON_DUPS = False
 
 
 ###################################
-# Variables used by compare_plaid_with_mint.py
+# Variables used by compare_plaid_with_mint.py  and get_new_transactions.py
 ###################################
 # Start and End Dates to fetch transactions - in MM/DD/YYYY format
 START_DATE_STR = "1/1/2021"

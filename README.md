@@ -36,6 +36,35 @@ Before running the scripts for the first time, you'll need to copy the template 
 
 3.  The remaining configuration elements are script specific and outlined in the script documentation
 
+## update_local_transactions.py
+This file updates (or creates) a local csv file of transaction data based on transactions fetched from the lunchmoney API.
+
+If a local transaction file already exists it determines the date of the most recent transaction and then fetches all transactions newer than that, as well as a configurable amount of older transactions that may have been updated since the last data pull.
+
+The new transactions that were fetched from LunchMoney are then analyzed for duplicates amongst themselves.   If duplicates are found they are tagged in LunchMoney and the user is instructed to go there to clean up before running this script.
+    
+Likewise, if unreviewed transactions are found, the user is asked to process those transactions prior to running this script.
+
+Otherwise, the newly imported transactions are combined with any existing local transactions.   Newly feteched transactions that already exist in the local file are ignored unless the category, payee, notes or tags fields are different, in which case the user is interactively asked how to handle the descrepency. In cases where the user prefers the local copy, the transaction in Lunch Money is updated.
+
+The updated local transaction list is written to a temporary file so as to preserve the last known good working local transaction list.
+
+### Script Configuration
+The script relies on the following settings in the [./config/lunchmoney-config.py](./config/lunchmoney_config.py), which you must set up the first time you run any of the scripts by following [these instructions](#configure-your-scripts).  In general there is no need to change the defaults.  
+
+- PATH_TO_LOCAL_TRANSACTIONS - the name of a local csv file where exported Lunch Money transactions are stored
+- LOOKBACK_TRANSACTION_DAYS - the number of days earlier than the most recent transaction found in the local backup to set as the start date for importing new transactions from lunch money.   This is useful if some accounts syncronized several days worth of accounts after the last time the backup was run
+- LOOKBACK_LM_DUP_DAYS - used as the window for identifying possible duplicate transactions from the import.  See [process_duplicates][#process_duplicates.py] for more details
+- COLS_TO_VALIDATE - a list of columns that must be populated for the local backup to be considered "good"
+
+### Running the script
+
+After ensuring that your environment is set up as [described here](#checklist-to-setup-the-environment-to-run-the-scripts), type the following in your terminal:
+  ```bash
+  python update_local_transactions.py
+  ```
+
+
 ## process_duplicates.py
 
 I still occasionally find duplicate lunchmoney transactions, I'm not sure why.  This may be because of the way I originally imported my Mint transaction data, or an ongoing issue with Plaid, but it has happened enough that I thought it would be handy to write a small script to identify potential duplicates for inspection and then, based on the results of that inspection tag them as non-duplicates or mark them for deletion.
