@@ -163,6 +163,8 @@ def ensure_consistent_types(df, source):
         df["exclude_from_totals"] = df["exclude_from_totals"].apply(str_to_bool)
         df["has_children"] = df["has_children"].apply(str_to_bool)
         df["is_group"] = df["is_group"].apply(str_to_bool)
+        # API returns "" if no Account Display Name (not "Cash transaction")
+        df["account_display_name"] = df["account_display_name"].fillna('')
         # Restore the Objects:
         df["tags"] = df["tags"].apply(
             lambda val: ast.literal_eval(val) if isinstance(val, str) else val
@@ -183,13 +185,11 @@ def ensure_consistent_types(df, source):
         df["parent_id"] = df["parent_id"].apply(id_to_str_or_none)
         df["plaid_account_id"] = df["plaid_account_id"].apply(id_to_str_or_none)
         # Massage out any newlines or leading/trailing spaces in any of the fields
-        df = df.applymap(clean_up_white_space_from_api)
+        df = df.apply(clean_up_white_space_from_api)
         # Since data has no timestamp info it became a python datetime.date object
         # Convert it to a pandas timestamp so we can be consistent in how we
         # operate on all date/time like objects
         df["date"] = pd.to_datetime(df["date"])
-
-    # Boolean columns
 
     return df
 

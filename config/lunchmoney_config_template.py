@@ -25,9 +25,29 @@ OUTPUT_FILES = "./output"
 CONFIG_FILES = "./config"
 
 ###################################
-# Variables used by get_new_transaction.py
+# Variables used by get_new_transaction.py and update_local_transactions.py
 ###################################
 LOOKBACK_TRANSACTION_DAYS = 7
+
+###################################
+# Date range of transactions to fetch
+# Used by process_duplicates and compare_plaid_with_mint.py
+###################################
+# Start and End Dates to fetch transactions - in MM/DD/YYYY format
+START_DATE_STR = "1/1/2024"
+END_DATE_STR = "4/25/2024"
+
+#####################################
+# Variables used by update_local_transaction_data.py
+#####################################
+PATH_TO_LOCAL_TRANSACTIONS = "lm-transaction-backup.csv"
+# Validate that local data has required fields
+DATE = "date"
+PAYEE = "payee"
+AMOUNT = "amount"
+CATEGORY = "category_name"
+ACCOUNT = "account_display_name"
+COLS_TO_VALIDATE = [DATE, PAYEE, AMOUNT, CATEGORY, ACCOUNT]
 
 ###################################
 # Variables used by process_duplicates.py
@@ -45,7 +65,7 @@ ASK_UPDATE_NON_DUPS = False
 
 
 ###################################
-# Variables used by compare_plaid_with_mint.py
+# Variables used by compare_plaid_with_mint.py  and get_new_transactions.py
 ###################################
 # Start and End Dates to fetch transactions - in MM/DD/YYYY format
 START_DATE_STR = "1/1/2021"
