@@ -1,12 +1,11 @@
 import os
 import pandas as pd
-from datetime import datetime, timedelta
 import sys
 from lib.transactions import (
     read_or_fetch_lm_transactions,
     lunchmoney_update_transaction,
-    get_category_id_by_name,
 )
+from lib.categories import get_category_id_by_name
 from lib.find_duplicates import find_duplicates
 from config.lunchmoney_config import (
     MINT_CSV_FILE,
@@ -153,9 +152,8 @@ def get_existing_transactions(input_path, input_file, date_format):
     Reads the data from MINT_CSV_FILE and returns the dataframe.
     """
     mint_csv_path = os.path.join(input_path, input_file)
-    # mint_df = pd.read_csv(mint_csv_path, parse_dates=["Date"], date_format=date_format)
-    mint_df = pd.read_csv(mint_csv_path, parse_dates=["Date"])
-    mint_df["Date"] = mint_df["Date"].dt.date
+    mint_df = pd.read_csv(mint_csv_path)
+    mint_df["Date"] = pd.to_datetime(mint_df["Date"])
     return mint_df
 
 
@@ -165,8 +163,8 @@ def get_new_lunchmoney_transactions(existing_df, lookback_days):
     """
     # Calculate the start date as 7 days before the most recent transaction date
     most_recent_date = existing_df["Date"].max()
-    start_date = most_recent_date - timedelta(days=lookback_days)
-    end_date = datetime.now().date()  # Set the end date to today
+    start_date = most_recent_date - pd.Timedelta(days=lookback_days)
+    end_date = pd.Timestamp.now()  # Set the end date to today
 
     # Initialize the LunchMoney client
 

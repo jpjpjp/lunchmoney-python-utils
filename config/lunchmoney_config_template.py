@@ -17,7 +17,6 @@ CACHE_DIR = "/tmp"
 # Name for local cache of fetched transactions, handy for interative development
 LM_FETCHED_TRANSACTIONS_CACHE = "lm_transactions"
 
-
 ###################################
 # Default location for input and output files
 ###################################
