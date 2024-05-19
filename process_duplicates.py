@@ -1,4 +1,4 @@
-"""process_duplicate.py
+""" process_duplicate.py
 
     This program analyzes a set of transactions from lunchmoney and indentifies
     potential duplicates, displaying them to the user interactively.
@@ -17,15 +17,26 @@
     If any transactions are deleted/tagged as duplciates, they are written to an
     output file for further examination
 """
+
 import os
 from datetime import datetime
 from lib.transactions import read_or_fetch_lm_transactions
 from lib.find_and_process_dups import find_duplicate_transactions
-from config.lunchmoney_config import START_DATE_STR, END_DATE_STR, LOOKBACK_LM_DUP_DAYS
+from config.lunchmoney_config import (
+    CACHE_DIR,
+    START_DATE_STR,
+    END_DATE_STR,
+    LOOKBACK_LM_DUP_DAYS,
+)
 
-
-def find_lunchmoney_duplicates(df, lookback_days=0):
-    """ Identifies potential duplicate transactions
+if __name__ == "__main__":
+    # Fetch the transactions from LunchMoney
+    df = read_or_fetch_lm_transactions(
+        datetime.strptime(START_DATE_STR, "%m/%d/%Y"),
+        datetime.strptime(END_DATE_STR, "%m/%d/%Y"),
+        remove_pending=True,
+        remove_split_parents=True,
+    )
 
     dup_ids = find_duplicate_transactions(df, lookback_days=LOOKBACK_LM_DUP_DAYS)
 
@@ -41,25 +52,9 @@ def find_lunchmoney_duplicates(df, lookback_days=0):
         # TODO provide a link that will show all files tagged with 'Duplicate' that
         # a user could click on.  This requires figuring out what the category_id is
         # for duplicate which will be unique for each lunchmoney user
-
-if __name__ == "__main__":
-    from lib.transactions import (
-        read_or_fetch_lm_transactions,
-    )
-    from config.lunchmoney_config import START_DATE_STR, END_DATE_STR
-
-    # Fetch the transactions from LunchMoney
-    df = read_or_fetch_lm_transactions(
-        datetime.strptime(START_DATE_STR, "%m/%d/%Y"),
-        datetime.strptime(END_DATE_STR, "%m/%d/%Y"),
-        remove_pending=True,
-        remove_split_parents=True,
-    )
-
-    dups_found = find_lunchmoney_duplicates(df, lookback_days=LOOKBACK_LM_DUP_DAYS)
-
-    if not dups_found:
-        print('No duplicates found!')
+        print(
+            "Remove duplicate transactions in LunchMoney by filtering on the "
+            "'Duplicate' tag."
+        )
     else:
-        print("Remove duplicate transactions in LunchMoney by filtering on the "
-              "'Duplicate' tag.")
+        print("No duplicates found!")
