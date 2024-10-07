@@ -65,7 +65,7 @@ def write_dated_df_to_csv(df, outfile, date_col=DATE, sort_by_date=True, index=F
 
 def get_latest_transaction_file(path_to_data, query_user=True):
     """Returns the filename with most recent local copy of transaction.
-    If a temporory copy of this file that was generated today is detected
+    If a temporary copy of this file that was generated today is detected
     the user is interactively queried to see if they prefer to use that one
     """
     file_name = (

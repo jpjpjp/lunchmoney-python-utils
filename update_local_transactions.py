@@ -15,9 +15,9 @@
     those transactions prior to running this script.
 
     Otherwise, the newly imported transactions are combined with any existing local
-    transactions.   Newly feteched transactions that exist in the local file are
+    transactions.   Newly fetched transactions that exist in the local file are
     ignored unless the category, payee, notes or tags fields are different in which
-    case the user is interactively asked how to handle the descrepency.
+    case the user is interactively asked how to handle the discrepancy.
 
     In cases where the user prefers the local copy,
     the transaction in Lunch Money is updated.
@@ -48,7 +48,10 @@ from lib.local_transaction_utils import (
 from lib.find_and_process_dups import find_duplicate_transactions
 
 
-def main():
+# Fetch the latest transactions from lunch money and update a 
+# a locally stored copy of those transactions
+# Return a dataframe of all the files for any subsequent work
+def update_local_transactions():
     # Read in the local transaction data file
     local_df = read_local_transaction_csv(
         lmc.PATH_TO_LOCAL_TRANSACTIONS, index_on_date=False
@@ -62,7 +65,7 @@ def main():
 
     # Add the new transactions without duplicates to the local file
     if local_df is not None:
-        # Find potential overlap in the two dbs and resolve any discrepencies
+        # Find potential overlap in the two dbs and resolve any discrepancies
         overlap_df = find_overlap_transactions(new_df, local_df)
         # Merge any new non overlapping transactions with the existing backup
         new_df = new_df[~new_df.index.isin(overlap_df.index)]
@@ -74,9 +77,11 @@ def main():
             )
         else:
             print('No new transactions found since last update.')
+        return local_df
     else:
-        # Ouptut the primary user's transaction file.
+        # Output the primary user's transaction file.
         write_dated_df_to_csv(new_df, lmc.PATH_TO_LOCAL_TRANSACTIONS)
+        return new_df
 
 
 def exit_if_duplicates_found(df):
@@ -259,5 +264,10 @@ def format_transaction(transaction):
     return formatted_transaction
 
 
-main()
+def main():
+    update_local_transactions
+
+if __name__ == '__main__':
+    sys.exit(main())
+
 

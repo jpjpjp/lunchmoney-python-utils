@@ -18,7 +18,7 @@ from config.lunchmoney_config import (
     INPUT_FILES,
     SPENDING_GROUP_DEFINITIONS,
     CATEGORY_GROUP_DEFINITIONS,
-    CATEGORY_ASSIGNEMENTS
+    CATEGORY_ASSIGNMENTS
 )
 
 
@@ -185,8 +185,8 @@ if __name__ == "__main__":
         json.dump(proposed_group_objects, file, indent=4)
 
     # Write existing_categories to a file in the INPUT_FILES directory
-    with open(os.path.join(INPUT_FILES, CATEGORY_ASSIGNEMENTS), "w") as file:
-        print(f"Writing proposed category assignements to {file.name}")
+    with open(os.path.join(INPUT_FILES, CATEGORY_ASSIGNMENTS), "w") as file:
+        print(f"Writing proposed category assignments to {file.name}")
         json.dump(existing_categories, file, indent=4)
 
     print('If everything looks good run create_category_groups.py')

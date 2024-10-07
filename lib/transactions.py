@@ -7,7 +7,7 @@
    access to the lunchable client and only requires that the LunchMoney API token
    be set in lunchmoney_config.py.
 
-   Apps that access multiple lunchmoney APIs can pass in a pre-intialized lunchable
+   Apps that access multiple lunchmoney APIs can pass in a pre-initialized lunchable
    client for API access.
 """
 
