@@ -14,7 +14,7 @@ LUNCHMONEY_API_TOKEN = "<YOUR_TOKEN_HERE>"
 ###################################
 # Directory to use for temporary and local cache files
 CACHE_DIR = "/tmp"
-# Name for local cache of fetched transactions, handy for interative development
+# Name for local cache of fetched transactions, handy for iterative development
 LM_FETCHED_TRANSACTIONS_CACHE = "lm_transactions"
 
 ###################################
@@ -55,13 +55,34 @@ COLS_TO_VALIDATE = [DATE, PAYEE, AMOUNT, CATEGORY, ACCOUNT]
 # Number of days to look for duplicate transactions
 LOOKBACK_LM_DUP_DAYS = 7
 # If two or more transactions look like duplicates but aren't it could be helpful
-# to provide more info in the Payee or Notes field to help disambituate
+# to provide more info in the Payee or Notes field to help disambiguate
 # If this parameter is set to anything, the interactive process of disambiguation
 # will provide the ability to update these fields when tagging a transaction as non-dup
 # Comment out or set to False to avoid this behavior which may be desirable
-# when processing many transactions which are in fact duplciates
+# when processing many transactions which are in fact duplicates
 # Set to True when periodically running this script..
 ASK_UPDATE_NON_DUPS = False
+
+
+###################################
+# Variables used by update_payees.py
+###################################
+# This script will remove text from the payee field and will move it to 
+# the notes field.   These configurations control what text to look for
+# and how that text will be removed
+# String to look for at the beginning of the payee field
+PAYEE_SEARCH_STRING = "CHECK"
+# Terminator for string to extract
+PAYEE_TERMINATOR = "-"
+# Using these as an example it will extract any string that starts with
+# CHECK up until a hyphen so for example it would extract:
+# CHECK 12354 - from CHECK 12354 - Monthly Rent
+# If there is no hyphen it will extract the entire payee field
+
+# This is the string that will be assigned to the payee if there is no
+# data after the PAYEE_TERMINATOR and no notes in the updated transactions
+# Search for this in the GUI and update accordingly
+EMPTY_PAYEE_STRING = "???"
 
 
 ###################################
@@ -83,9 +104,9 @@ MINT_DATE_FORMAT = "%Y-%m-%d"
 # For at least one of my accounts I've seen the Mint dates be earlier than Plaid too.
 # These variables control the date window to search for a duplicate in the Mint data
 # Setting these to larger numbers will result in more duplicates found, and likely
-# increase the number of times you will be prompted to manually disambigute multiple
+# increase the number of times you will be prompted to manually disambiguate multiple
 # possible duplicates, when the program runs.
-# Setting these to smaller number will result in more transations with an action of
+# Setting these to smaller number will result in more transactions with an action of
 # Investigate, requiring more post run manual analysis.
 LOOKBACK_DAYS = 1
 LOOKAHEAD_DAYS = 7

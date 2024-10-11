@@ -2,7 +2,7 @@
 
 This repo includes a set of scripts that I created to do various manipulations of data that I have in [LunchMoney](https://my.lunchmoney.app), an online tool for aggregating financial transactions (among other things).
 
-I came to LunchMoney after many years of using [Mint.com](https://mint.intuit.com/), which was declared an end of life product in 2023. I exported my data from Mint and began importing it into LunchMoney. I also configured my new LunchMoney account to have automatic connections with most of the finanical institutions that I was gathering data from in Mint.
+I came to LunchMoney after many years of using [Mint.com](https://mint.intuit.com/), which was declared an end of life product in 2023. I exported my data from Mint and began importing it into LunchMoney. I also configured my new LunchMoney account to have automatic connections with most of the financial institutions that I was gathering data from in Mint.
 
 In my case, I made several missteps resulting in duplicate transactions, incorrect Tags/Labels, and a few other problems.  The initial set of scripts in this repo were designed to help me get my transactions into better shape.  
 
@@ -45,7 +45,7 @@ The new transactions that were fetched from LunchMoney are then analyzed for dup
     
 Likewise, if unreviewed transactions are found, the user is asked to process those transactions prior to running this script.
 
-Otherwise, the newly imported transactions are combined with any existing local transactions.   Newly feteched transactions that already exist in the local file are ignored unless the category, payee, notes or tags fields are different, in which case the user is interactively asked how to handle the descrepency. In cases where the user prefers the local copy, the transaction in Lunch Money is updated.
+Otherwise, the newly imported transactions are combined with any existing local transactions.   Newly fetched transactions that already exist in the local file are ignored unless the category, payee, notes or tags fields are different, in which case the user is interactively asked how to handle the discrepancy. In cases where the user prefers the local copy, the transaction in Lunch Money is updated.
 
 The updated local transaction list is written to a temporary file so as to preserve the last known good working local transaction list.
 
@@ -53,7 +53,7 @@ The updated local transaction list is written to a temporary file so as to prese
 The script relies on the following settings in the [./config/lunchmoney-config.py](./config/lunchmoney_config.py), which you must set up the first time you run any of the scripts by following [these instructions](#configure-your-scripts).  In general there is no need to change the defaults.  
 
 - PATH_TO_LOCAL_TRANSACTIONS - the name of a local csv file where exported Lunch Money transactions are stored
-- LOOKBACK_TRANSACTION_DAYS - the number of days earlier than the most recent transaction found in the local backup to set as the start date for importing new transactions from lunch money.   This is useful if some accounts syncronized several days worth of accounts after the last time the backup was run
+- LOOKBACK_TRANSACTION_DAYS - the number of days earlier than the most recent transaction found in the local backup to set as the start date for importing new transactions from lunch money.   This is useful if some accounts synchronized several days worth of accounts after the last time the backup was run
 - LOOKBACK_LM_DUP_DAYS - used as the window for identifying possible duplicate transactions from the import.  See [process_duplicates][#process_duplicates.py] for more details
 - COLS_TO_VALIDATE - a list of columns that must be populated for the local backup to be considered "good"
 
@@ -67,7 +67,7 @@ After ensuring that your environment is set up as [described here](#checklist-to
 
 ## process_duplicates.py
 
-When I first started using Lunch Money, I imported about 10 years worth of transactions from Mint.  Then I told Lunch Money about my active bank accounts and had it fetch transactions.  Unforutnatly, I didn't tell Lunch Money to ignore transactions older than the ones I imported.  This led to a lot of duplciates (and actually a few new transactions that Mint somehow never picked up).  This script is useful for identifying those duplicates so that they can all be easily deleted in one bulk transactions.
+When I first started using Lunch Money, I imported about 10 years worth of transactions from Mint.  Then I told Lunch Money about my active bank accounts and had it fetch transactions.  Unfortunately, I didn't tell Lunch Money to ignore transactions older than the ones I imported.  This led to a lot of duplicates (and actually a few new transactions that Mint somehow never picked up).  This script is useful for identifying those duplicates so that they can all be easily deleted in one bulk transactions.
 
 Even after doing this initial setup, I still occasionally find duplicate lunchmoney transactions, I'm not sure why.  This may be because of the way I originally imported my Mint transaction data, or an ongoing issue with Plaid, but it has happened enough that I thought it would be handy to write a small script to identify potential duplicates for inspection and then, based on the results of that inspection tag them as non-duplicates or mark them for deletion.
 
@@ -77,8 +77,8 @@ The script relies on the following settings in the [./config/lunchmoney-config.p
   - START_DATE_STR  - Earliest date to fetch transactions, in MM/DD/YYYY format
   - END_DATE_STR - Latest date to fetch transactions from, in MM/DD/YYYY format
   - LOOKBACK_LM_DUP_DAYS - The number of days to lookback for potential duplicates. This is necessary if a transaction was somehow categorized when it was pending and when it settled the date was actually later.  It's also useful when comparing Lunch Money/Plaid transactions with imported data since the transaction date can often be different - default is 7
-  - CACHE DIR and LM_FETCHED_TRANSACTIONS_CACHE - The directory and name of a cache file for transactions fetched via the API. This is useful if you run this script multiple times.  After the first API request the data is written to `{CACH_DIR}/{LM_FETCHED_TRANSACTIONS_CACHE}-{START_DATE_STR}-${END_DATE_STR}.csv`.  Future requests for transactions from the same data range will use the cached copy if the file exists.   Delete this file to force a refresh pull from the API
-  - ASK_UPDATE_NON_DUPS - When this parameter is set to True, and the user indentifies a potential set of duplicates as non duplicates, it will ask the user if they want to update the Payee or Notes field to make it clearer what the distinction is between the transactions.  This is useful when the script is run for "periodic hygiene" on your LunchMoney transactions, and most potential duplicates are actually legitimate.  This level of interactivity can be cumbersome however if you are running this script after accidentally importing tons of plaid transactions that duplicate what you already imported in Mint.  In this case it is reccomended to set this configuration paramter to False to move more quickly through a large set of duplicate transacations.
+  - CACHE DIR and LM_FETCHED_TRANSACTIONS_CACHE - The directory and name of a cache file for transactions fetched via the API. This is useful if you run this script multiple times.  After the first API request the data is written to `{CACHE_DIR}/{LM_FETCHED_TRANSACTIONS_CACHE}-{START_DATE_STR}-${END_DATE_STR}.csv`.  Future requests for transactions from the same data range will use the cached copy if the file exists.   Delete this file to force a refresh pull from the API
+  - ASK_UPDATE_NON_DUPS - When this parameter is set to True, and the user identifies a potential set of duplicates as non duplicates, it will ask the user if they want to update the Payee or Notes field to make it clearer what the distinction is between the transactions.  This is useful when the script is run for "periodic hygiene" on your LunchMoney transactions, and most potential duplicates are actually legitimate.  This level of interactivity can be cumbersome however if you are running this script after accidentally importing tons of plaid transactions that duplicate what you already imported in Mint.  In this case it is recommended to set this configuration parameter to False to move more quickly through a large set of duplicate transactions.
 
 ### Running the script
 
@@ -88,11 +88,43 @@ After ensuring that your environment is set up as [described here](#checklist-to
   ```
 This script will fetch all the all the transactions in the specified data range, ignoring pending transactions and any parents of split transactions.   It will sort the transactions by `account_display_name` and then attempt to identify any transactions with the same account, amount, and a date within a LOOKBACK_LM_DUP_DAYS window.
 
-When it finds multiple transactions that meet this criteria they are presented to the user, who is asked to interactively identify if one is a duplicate or if all the transactions are valid.   If a duplciate is identified it is **marked for deletion**.  If the transactions are verfied as non duplicate, they are updated with the "Not-Duplicate" tag to prevent triggering this process in the future.   The user also has an opportunity to update the Payee or Notes field with more details explaining the difference between the two.
+When it finds multiple transactions that meet this criteria they are presented to the user, who is asked to interactively identify if one is a duplicate or if all the transactions are valid.   If a duplicate is identified it is **marked for deletion**.  If the transactions are verified as non duplicate, they are updated with the "Not-Duplicate" tag to prevent triggering this process in the future.   The user also has an opportunity to update the Payee or Notes field with more details explaining the difference between the two.
 
-**Note on Deletion** Currently, the Lunchmoney API does not provide an interface for deleting transactions, so transactions marked for deletion are tagged with tag named: "Duplicate".   After the script completes it will write any transactions tagged as a duplicate to the ouptut directory.
+**Note on Deletion** Currently, the Lunchmoney API does not provide an interface for deleting transactions, so transactions marked for deletion are tagged with tag named: "Duplicate".   After the script completes it will write any transactions tagged as a duplicate to the output directory.
 
 After the script runs, the user can filter for transactions with the "Duplicate" tag and delete them.
+
+## update_payees
+
+Transactions imported by Plaid often populate the `payee` field with something that is really a "payee method" in my mind.  Examples of this might be "venmo", or "CHECK XXX".   When I first started using Lunch Money I left these fields alone and added info about who the payment actually was for in the `notes` field.   Later I realized that Lunch Money gives me the ability to see payments by "merchant" (which is really Payee), and I realized that I wished I had updated the payee field.
+
+This script will identify payees that match a particular string and will swap the `payee` and `notes` fields, prepending the old payee with  "Paid via: :.
+
+### Script Configuration
+
+Set the following in [./config/lunchmoney-config.py](./config/lunchmoney_config.py)
+  - PAYEE_SEARCH_STRING - this is the string that will be at the beginning of the `payee` field, ie: "Venmo"
+  - PAYEE_TERMINATOR - this will terminate the data that is taken out of the notes field.  If not set, the entire payee field will be moved to the notes field
+  - EMPTY_PAYEE_STRING - if there is no date in the notes field and no date in the payee field after the PAYEE_TERMINATOR, this string will be put in the payee field, ie.
+
+Here are some examples of how this might work. 
+
+Configuration 1:
+  - PAYEE_SEARCH_STRING="Venmo"
+  - PAYEE_TERMINATOR = "-"
+  - EMPTY_PAYEE_STRING = "???"
+
+    - Transaction 1:
+      - Original Payee: "Venmo"
+      - Original Notes" "Pizza with Jane"
+      - New Payee: "Pizza with Jane"
+      - New Notes: "Paid via Venmo"
+    - Transaction 2:
+      - Original Payee: "Venmo - John for Gas for Road trip"
+      - Original Notes: ""
+      - New Payee: "John for Gas for Road Trip"
+      - New Notes: "Paid via Venmo -"
+
 
 ## prep_categories.py and create_category_groups.py
 
@@ -119,15 +151,15 @@ After ensuring that your environment is set up as [described here](#checklist-to
   ```bash
   python prep_categories.py
   ```
-This script will fetch all the existing categories from your LunchMoney account and compare them with your proposed category groups and sub groups.   It will generate ouput to the terminal that describes which of those categories will be renamed by the next script, which category groups already exist, and which category groups will be created.
+This script will fetch all the existing categories from your LunchMoney account and compare them with your proposed category groups and sub groups.   It will generate output to the terminal that describes which of those categories will be renamed by the next script, which category groups already exist, and which category groups will be created.
 
 It will also generate a list of existing categories that are not assigned to any category. You may wish to update your spending group definition file to assign these remaining categories to a category group and rerun this script.  You can safely rerun this script as many times as necessary as it does not make any changes to your actual LunchMoney configuration.
 
-Once the changes proposed by the `prep_categories.py` script are to your liking you can run the script to actually make the canges by typing the following in your terminal:
+Once the changes proposed by the `prep_categories.py` script are to your liking you can run the script to actually make the changes by typing the following in your terminal:
   ```bash
   python create_category_groups.py
   ```
-  **WARNING - This step is not reversable!**
+  **WARNING - This step is not reversible!**
 
 This script will read the configuration files written by the other script, rename the existing categories as needed, and create any new Category Groups with their proposed sub categories.
 

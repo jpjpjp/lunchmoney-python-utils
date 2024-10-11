@@ -109,7 +109,7 @@ def read_or_fetch_lm_transactions(
     GET /transactions API.
 
     For the API to work the environment variable LUNCHMONEY_API_TOKEN must
-    be set to a token aquired from https://my.lunchmoney.app/developers
+    be set to a token acquired from https://my.lunchmoney.app/developers
     """
     try:
         csv_file = os.path.join(
@@ -267,7 +267,7 @@ def read_lm_transactions_csv(path_to_data):
         #     # "external_id": string_converter,
         #     # "asset_institution_name": string_converter,
         #     # TODO children
-        #     # Strip unecessary spaces that sneak into account names
+        #     # Strip unnecessary spaces that sneak into account names
         #     "account_display_name": lambda x: x.strip() if isinstance(x, str) else x,
         #     # "is_income": bool_converter,
         #     # "exclude_from_budget": bool_converter,
