@@ -5,6 +5,8 @@
 
 # Non template version of config files
 config/lunchmoney_config.py
+config/granny_lunchmoney_config.py
+config/jp_lunchmoney_config.py
 config/account_name_map.csv
 
 # Generated Files

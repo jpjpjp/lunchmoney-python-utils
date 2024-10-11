@@ -21,8 +21,8 @@
                       which will contain a unique index for each transaction
 
         A value of "Investigate" indicates that the pulled transaction may be
-        missing from the mint data.  Some investiation is generally warranted as
-        there may be discrepencies due to transaction vs. settled date, transactions
+        missing from the mint data.  Some investigation is generally warranted as
+        there may be discrepancies due to transaction vs. settled date, transactions
         that were split in Mint before being exported, or other manual changes
 
     mint_analyzed_transactions.csv is a copy of the mint input file with two
@@ -34,7 +34,7 @@
         with Plaid transactions labeled "Investigate
 
     To facilitate manual analysis, the files are sorted in order of Account Name, and
-    then decending date.  Note that different account names can stymie the analysis,
+    then descending date.  Note that different account names can stymie the analysis,
     see the documentation for the filter_matches_by_account function in the
     find_duplicates.py module for details on how to resolve this
 """
@@ -120,7 +120,7 @@ def report_findings(lm_df, lm_index, mint_df, mint_index):
 
     We update the lunchmoney transaction row with the "action" of "Duplicate" and
     set the "related_id" cell to the index of the matching row in the mint data
-    (since Mint transacations do not have a unique transaction ID)
+    (since Mint transactions do not have a unique transaction ID)
 
     We update the matching mint transaction row with an "action" of "Match and
     set the "related_id" cell the transaction id of matching lunchmoney transaction
@@ -141,14 +141,14 @@ def sort_by_account_date(df, acct_name, date):
 
 
 def prepare_plaid_dataset(start_date, end_date):
-    """This function reads or fetchs a set of lunchmoney transactions in the
+    """This function reads or fetches a set of lunchmoney transactions in the
     specified date range and transforms it into
-    a dataframe, reducin low value columns while adding
+    a dataframe, reducing low value columns while adding
     the new "analysis" and "related_id" columns.  Finally it discards any
     transactions that do not have a "source" of "plaid"
 
     Returns: dataframe of lunchmoney transactions that were pulled via the plaid
-             integration, sorted by account and decending date of transactions
+             integration, sorted by account and descending date of transactions
 
     A side effect of this function is to write a csv file 'ignored_transactions.csv'
     which contains any transactions with a "source" value other than "plaid"
@@ -215,5 +215,3 @@ def prepare_mint_dataset(mint_csv_file):
     return df
 
 
-if __name__ == '__main__':
-    sys.exit(main())

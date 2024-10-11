@@ -16,14 +16,14 @@ from lib.categories import update_category, create_category_group
 from config.lunchmoney_config import (
     INPUT_FILES,
     CATEGORY_GROUP_DEFINITIONS,
-    CATEGORY_ASSIGNEMENTS,
+    CATEGORY_ASSIGNMENTS,
 )
 
 
 def main():
     # Read the group and category structure lists written by prep_categories.py
     (groups, categories) = read_input_files(
-        INPUT_FILES, CATEGORY_GROUP_DEFINITIONS, CATEGORY_ASSIGNEMENTS
+        INPUT_FILES, CATEGORY_GROUP_DEFINITIONS, CATEGORY_ASSIGNMENTS
     )
 
     # Rename an existing categories that have the same name as a proposed group

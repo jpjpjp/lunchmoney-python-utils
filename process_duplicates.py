@@ -1,6 +1,6 @@
 """ process_duplicate.py
 
-    This program analyzes a set of transactions from lunchmoney and indentifies
+    This program analyzes a set of transactions from lunchmoney and identifies
     potential duplicates, displaying them to the user interactively.
 
     If the user confirms that one or more of the transactions is a duplicate,
@@ -14,7 +14,7 @@
     the transactions are given a tag "Not-Duplicate" to prevent them from being
     flagged again in future runs
 
-    If any transactions are deleted/tagged as duplciates, they are written to an
+    If any transactions are deleted/tagged as duplicates, they are written to an
     output file for further examination
 """
 
