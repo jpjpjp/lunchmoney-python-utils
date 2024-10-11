@@ -40,7 +40,7 @@ def find_duplicate_transactions(
 def find_duplicates_for_one_account(df, lookback_days, ids_to_delete):
     """Look for duplicates in a dataframe of transactions
     If found ask user to disambiguate, tagging non-duplicates, and
-    deleteing duplicates
+    deleting duplicates
 
     Note that it is assumed that all transactions are for the same account
     """  # Validate: len(df_to_search["account_display_name"].unique())
