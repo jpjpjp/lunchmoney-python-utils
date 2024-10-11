@@ -42,16 +42,24 @@ def lunchmoney_transactions_to_df(start_date, end_date, lunch=None):
     """Returns a dataframe with the transactions obtained via the
     lunchable.get_transactions API for the specified data range
     """
-    if lunch is None:
-        lunch = init_lunchable()
+    try:
+        if lunch is None:
+            lunch = init_lunchable()
 
-    # Fetch transactions from the last three months
-    transactions = lunch.get_transactions(start_date.date(), end_date.date())
+        # Fetch transactions from the last three months
+        transactions = lunch.get_transactions(start_date.date(), end_date.date())
 
-    # Convert transactions to dictionaries and then to a DataFrame
-    transactions_data = [transaction.model_dump() for transaction in transactions]
-    return ensure_consistent_types(pd.DataFrame(transactions_data), source="api")
+        # Convert transactions to dictionaries and then to a DataFrame
+        transactions_data = [transaction.model_dump() for transaction in transactions]
+        return ensure_consistent_types(pd.DataFrame(transactions_data), source="api")
 
+    except Exception as e:
+        print("Error in lunchmoney_transactions_to_df:")
+        print(e)
+        user_input = input("Do you want to continue? (y/n): ").strip().lower()
+        if user_input != 'y':
+            sys.exit()
+        return None
 
 # Custom function to coerce Lunch Money IDs to strings or None
 def id_to_str_or_none(x):
@@ -73,10 +81,18 @@ def lunchmoney_update_transaction(id, transaction_fields, lunch=None):
     """Updated the transaction with id, to have whatever new values are
     in set in the transaction_fields object
     """
-    if lunch is None:
-        lunch = init_lunchable()
-    update_object = TransactionUpdateObject(**transaction_fields)
-    return lunch.update_transaction(id, update_object)
+    try:
+        if lunch is None:
+            lunch = init_lunchable()
+        update_object = TransactionUpdateObject(**transaction_fields)
+        return lunch.update_transaction(id, update_object)
+    except Exception as e:
+        print("Error in lunchmoney_update_transaction:")
+        print(e)
+        user_input = input("Do you want to continue? (y/n): ").strip().lower()
+        if user_input != 'y':
+            sys.exit()
+        return None
 
 
 def read_or_fetch_lm_transactions(
@@ -95,44 +111,52 @@ def read_or_fetch_lm_transactions(
     For the API to work the environment variable LUNCHMONEY_API_TOKEN must
     be set to a token aquired from https://my.lunchmoney.app/developers
     """
-    csv_file = os.path.join(
-        CACHE_DIR,
-        (
-            f"{LM_FETCHED_TRANSACTIONS_CACHE}-"
-            f"{start_date.strftime('%Y_%m_%d')}-"
-            f"{end_date.strftime('%Y_%m_%d')}.csv"
-        ),
-    )
-    if os.path.isfile(csv_file):
-        # We have a cached version of the same transaction request written as a CSV
-        # Read it in from the CSV normalizing the data as if it had come from the API
-        df = read_lm_transactions_csv(csv_file)
-        print(f"Read {len(df)} transactions from {csv_file}.")
-        print("Just delete this file if you want to re-fetch them again in the future.")
+    try:
+        csv_file = os.path.join(
+            CACHE_DIR,
+            (
+                f"{LM_FETCHED_TRANSACTIONS_CACHE}-"
+                f"{start_date.strftime('%Y_%m_%d')}-"
+                f"{end_date.strftime('%Y_%m_%d')}.csv"
+            ),
+        )
+        if os.path.isfile(csv_file):
+            # We have a cached version of the same transaction request written as a CSV
+            # Read it in from the CSV normalizing the data as if it had come from the API
+            df = read_lm_transactions_csv(csv_file)
+            print(f"Read {len(df)} transactions from {csv_file}.")
+            print("Just delete this file if you want to re-fetch them again in the future.")
 
-    else:
+        else:
 
-        print("Attempting to fetch your lunch money transactions via the API...")
-        df = lunchmoney_transactions_to_df(start_date, end_date, lunch)
-        print(f"Got all {len(df)} of them.")
-        print(f"Will write them to {csv_file} for faster future access.")
-        print("Just delete this file if you want to re-fetch them again in the future.")
+            print("Attempting to fetch your lunch money transactions via the API...")
+            df = lunchmoney_transactions_to_df(start_date, end_date, lunch)
+            print(f"Got all {len(df)} of them.")
+            print(f"Will write them to {csv_file} for faster future access.")
+            print("Just delete this file if you want to re-fetch them again in the future.")
 
-        try:
-            df.to_csv(csv_file, index=False)
-        except Exception as e:
-            print(f"Failed to write to {csv_file}. Reason: {e}")
-            print(
-                "Consider modifying CACHE_DIR and/or LM_FETCHED_TRANSACTIONS_CACHE "
-                "in the config file."
-            )
+            try:
+                df.to_csv(csv_file, index=False)
+            except Exception as e:
+                print(f"Failed to write to {csv_file}. Reason: {e}")
+                print(
+                    "Consider modifying CACHE_DIR and/or LM_FETCHED_TRANSACTIONS_CACHE "
+                    "in the config file."
+                )
 
-    if remove_pending:
-        df = remove_pending_transactions(df)
-    if remove_split_parents:
-        df = remove_parents_of_split_transactions(df)
+        if remove_pending:
+            df = remove_pending_transactions(df)
+        if remove_split_parents:
+            df = remove_parents_of_split_transactions(df)
 
-    return df
+        return df
+    except Exception as e:
+        print("Error in read_or_fetch_lm_transactions:")
+        print(e)
+        user_input = input("Do you want to continue? (y/n): ").strip().lower()
+        if user_input != 'y':
+            sys.exit()
+        return None
 
 
 def ensure_consistent_types(df, source):
